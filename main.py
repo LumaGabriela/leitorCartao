@@ -18,11 +18,16 @@ gabarito = {
     41: 'B', 42: 'A', 43: 'B', 44: 'E', 45: 'E', 46: 'A', 47: 'A', 48: 'B', 49: 'D', 50: 'C'
 }
 
-aluno = {1: 'B', 2: 'A', 3: 'D', 4: 'A', 5: 'E', 6: 'B', 7: 'D', 8: 'D', 9: 'B', 10: 'B', 11: 'C', 12: 'C', 13: 'C', 14: 'C', 15: 'A', 16: 'A', 17: 'D', 18: 'C', 19: 'A', 20: 'D', 21: 'D', 22: 'B', 23: 'D', 24: 'B', 25: 'C', 26: 'B', 27: 'B', 28: 'B', 29: 'E', 30: 'B', 31: 'B', 32: 'B', 33: 'B', 34: 'C', 35: 'C', 36: 'D', 37: 'B', 38: 'C', 39: 'C', 40: 'B', 41: 'B', 42: 'A', 43: 'B', 44: 'E', 45: 'E', 46: 'A', 47: 'A', 48: 'B', 49: 'D', 50: 'C'}
+aluno = {1: 'B', 2: 'A', 3: 'D', 4: 'A', 5: 'E', 6: 'B', 7: 'D', 8: 'D', 9: 'B', 10: 'B',
+    11: 'C', 12: 'C', 13: 'C', 14: 'C', 15: 'A', 16: 'A', 17: 'D', 18: 'C', 19: 'A', 20: 'D',
+    21: 'D', 22: 'B', 23: 'D', 24: 'B', 25: 'C', 26: 'B', 27: 'B', 28: 'B', 29: 'E', 30: 'B',
+    31: 'B', 32: 'B', 33: 'B', 34: 'C', 35: 'C', 36: 'D', 37: 'B', 38: 'C', 39: 'C', 40: 'B', 
+    41: 'B', 42: 'A', 43: 'B', 44: 'E', 45: 'E', 46: 'A', 47: 'B', 48: 'B', 49: 'D', 50: 'C'}
 
 def processar_imagem_cartao(imagem_caminho):
     # Carregar a imagem e converter para escala de cinza
     imagem = cv2.imread(imagem_caminho)
+    imagem = corrigir_orientacao(imagem)
     imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
     
     # Aplicar limiarização para destacar as marcações
@@ -35,6 +40,39 @@ def processar_imagem_cartao(imagem_caminho):
     # Assumindo que o maior contorno é o cartão-resposta
     cartao_contorno = contornos[0]
     return imagem, thresh, cartao_contorno
+
+
+def corrigir_orientacao(imagem_cartao):
+    # Converter para escala de cinza e aplicar um threshold
+    imagem_cinza = cv2.cvtColor(imagem_cartao, cv2.COLOR_BGR2GRAY)
+    _, imagem_bin = cv2.threshold(imagem_cinza, 127, 255, cv2.THRESH_BINARY_INV)
+    
+    # Detectar contornos
+    contornos, _ = cv2.findContours(imagem_bin, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # Procurar o maior contorno que poderia corresponder ao bloco de questões
+    maior_contorno = max(contornos, key=cv2.contourArea)
+    retangulo = cv2.minAreaRect(maior_contorno)
+    angulo = retangulo[-1]
+    
+    # Ajustar o ângulo (se o retângulo está "deitado" ou "em pé")
+    if angulo < -45:
+        angulo += 90
+    
+    # Verificar se o ângulo está dentro do intervalo aceitável
+    if angulo < 88 or angulo > 92:
+        # Calcular a rotação necessária para corrigir a orientação
+        (h, w) = imagem_cartao.shape[:2]
+        centro = (w // 2, h // 2)
+        matriz_rotacao = cv2.getRotationMatrix2D(centro, angulo, 1.0)
+        imagem_corrigida = cv2.warpAffine(imagem_cartao, matriz_rotacao, (w, h), flags=cv2.INTER_LINEAR)
+        print(f"Imagem rotacionada em {angulo} graus para corrigir a orientação.")
+        return imagem_corrigida
+    else:
+        print("Imagem já está na orientação correta.")
+        return imagem_cartao
+
+
 
 def visualizar_blocos_questoes(imagem_cartao, largura_alternativa, altura_alternativa, num_colunas, num_linhas, esp_horizontal, esp_vertical):
     altura_imagem, largura_imagem = imagem_cartao.shape[:2]
@@ -67,13 +105,13 @@ def detectar_respostas(imagem_thresh):
 
     # Coordenadas do cartão-resposta em relação à imagem completa
     x_inicio = int(largura_imagem * 0.092)  
-    y_inicio = int(altura_imagem * 0.3515)  
+    y_inicio = int(altura_imagem * 0.355)  
     x_fim = int(largura_imagem * 0.9107)     
     y_fim = int(altura_imagem * 0.8248)     
 
     # Calculo do espacamento vertical e horizontal
     espacamento_horizontal = 0.016 * largura_imagem 
-    espacamento_vertical = 0.0064 * altura_imagem
+    espacamento_vertical = 0.01 * altura_imagem
 
     # Extrair apenas a área do cartão-resposta
     imagem_respostas = imagem_thresh[y_inicio:y_fim, x_inicio:x_fim]
@@ -83,6 +121,8 @@ def detectar_respostas(imagem_thresh):
     num_colunas = 15  # 15 colunas de questões por linha
     largura_alternativa = int((x_fim - x_inicio - (14 * espacamento_horizontal)) / num_colunas)
     altura_alternativa = int((y_fim - y_inicio - (3 * espacamento_vertical)) / num_linhas)
+
+
 
     # Visualizar os blocos das questões inteiras
     visualizar_blocos_questoes(imagem_respostas, largura_alternativa, altura_alternativa, num_colunas, num_linhas, espacamento_horizontal, espacamento_vertical)
@@ -135,7 +175,8 @@ def corrigir_respostas(respostas_aluno, gabarito):
     return pontuacao
 
 # Caminho da imagem do cartão-resposta
-imagem_caminho = 'imagens/cartao1.jpg'
+imagem_caminho = 'imagens/cartao2.jpg'
+
 
 # Processamento da imagem e detecção das respostas
 imagem, imagem_thresh, contorno_cartao = processar_imagem_cartao(imagem_caminho)
