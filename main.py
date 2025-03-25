@@ -9,6 +9,14 @@ gabarito = {
     31: 'A', 32: 'D', 33: 'D', 34: 'B', 35: 'C', 36: 'D', 37: 'B', 38: 'D', 39: 'D', 40: 'D',
     41: 'D', 42: 'E', 43: 'C', 44: 'A', 45: 'D', 46: 'B', 47: 'C', 48: 'A', 49: 'D', 50: 'E'
 }
+# gabarito com as respostas escritas pelo aluno, se a resposta for 50/50 significa que o leitor funcionou e reconheceu com exatidao todas as alternativas
+# gabarito = {
+#     1: 'B', 2: 'A', 3: 'D', 4: 'A', 5: 'E', 6: 'B', 7: 'D', 8: 'D', 9: 'B', 10: 'B',
+#     11: 'C', 12: 'C', 13: 'C', 14: 'C', 15: 'A', 16: 'A', 17: 'D', 18: 'C', 19: 'A', 20: 'D',
+#     21: 'D', 22: 'B', 23: 'D', 24: 'B', 25: 'C', 26: 'B', 27: 'B', 28: 'B', 29: 'E', 30: 'B',
+#     31: 'B', 32: 'B', 33: 'B', 34: 'C', 35: 'C', 36: 'D', 37: 'B', 38: 'C', 39: 'C', 40: 'B',
+#     41: 'B', 42: 'A', 43: 'B', 44: 'E', 45: 'E', 46: 'A', 47: 'A', 48: 'B', 49: 'D', 50: 'C'
+# }
 
 # gabarito = {
 #     1: 'B', 2: 'A', 3: 'D', 4: 'A', 5: 'E', 6: 'B', 7: 'D', 8: 'D', 9: 'B', 10: 'B',
