@@ -58,9 +58,9 @@ def corrigir_orientacao(imagem_cartao):
     # Ajustar o ângulo (se o retângulo está "deitado" ou "em pé")
     if angulo < -45:
         angulo += 90
-    
+    5
     # Verificar se o ângulo está dentro do intervalo aceitável
-    if angulo < 88 or angulo > 92:
+    if angulo < 89 or angulo > 91:
         # Calcular a rotação necessária para corrigir a orientação
         (h, w) = imagem_cartao.shape[:2]
         centro = (w // 2, h // 2)
@@ -175,7 +175,7 @@ def corrigir_respostas(respostas_aluno, gabarito):
     return pontuacao
 
 # Caminho da imagem do cartão-resposta
-imagem_caminho = 'imagens/cartao1.jpg'
+imagem_caminho = 'imagens/cartao3.jpg'
 
 
 # Processamento da imagem e detecção das respostas
